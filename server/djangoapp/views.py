@@ -7,6 +7,7 @@ import json
 
 from .models import CarMake, CarModel
 from .populate import initiate
+from .restapis import get_request, analyze_review_sentiments
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ def logout_user(request):
     return JsonResponse({"userName": ""})
 
 
-# REGISTER (IMPORTANT — DO NOT REMOVE)
+# REGISTER
 @csrf_exempt
 def registration(request):
     data = json.loads(request.body)
@@ -60,7 +61,7 @@ def registration(request):
     return JsonResponse({"userName": username, "status": "Authenticated"})
 
 
-# ✅ GET CARS (NEW)
+# GET CARS
 def get_cars(request):
     try:
         if CarMake.objects.count() == 0:
@@ -79,3 +80,39 @@ def get_cars(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)})
+
+
+# GET DEALERSHIPS
+def get_dealerships(request, state="All"):
+    if state == "All":
+        endpoint = "/fetchDealers"
+    else:
+        endpoint = "/fetchDealers/" + state
+
+    dealerships = get_request(endpoint)
+    return JsonResponse({"status": 200, "dealers": dealerships})
+
+
+# GET DEALER DETAILS
+def get_dealer_details(request, dealer_id):
+    if dealer_id:
+        endpoint = "/fetchDealer/" + str(dealer_id)
+        dealership = get_request(endpoint)
+        return JsonResponse({"status": 200, "dealer": dealership})
+    else:
+        return JsonResponse({"status": 400, "message": "Bad Request"})
+
+
+# GET DEALER REVIEWS
+def get_dealer_reviews(request, dealer_id):
+    if dealer_id:
+        endpoint = "/fetchReviews/dealer/" + str(dealer_id)
+        reviews = get_request(endpoint)
+
+        for review_detail in reviews:
+            response = analyze_review_sentiments(review_detail['review'])
+            review_detail['sentiment'] = response['sentiment']
+
+        return JsonResponse({"status": 200, "reviews": reviews})
+    else:
+        return JsonResponse({"status": 400, "message": "Bad Request"})
