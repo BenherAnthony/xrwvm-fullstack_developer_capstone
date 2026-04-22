@@ -124,3 +124,15 @@ img{
     text-align:center;
     box-shadow: 2px 2px 3px #999;  
 }
+
+.contact-header {
+    text-align: center;
+}
+
+.contact-header h1 {
+    font-weight: bold;
+}
+
+.container p {
+    font-size: 16px;
+}
