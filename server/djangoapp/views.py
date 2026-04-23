@@ -47,7 +47,8 @@ def registration(request):
     email = data['email']
 
     if User.objects.filter(username=username).exists():
-        return JsonResponse({"userName": username, "error": "Already Registered"})
+        return JsonResponse(
+            {"userName": username, "error": "Already Registered"})
 
     user = User.objects.create_user(
         username=username,

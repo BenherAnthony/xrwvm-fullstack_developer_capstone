@@ -1,5 +1,6 @@
 from .models import CarMake, CarModel
 
+
 def initiate():
     if CarMake.objects.count() > 0:
         return  # ✅ prevents duplicate inserts
